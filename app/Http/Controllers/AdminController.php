@@ -1,0 +1,277 @@
+<?php
+namespace App\Http\Controllers;
+
+use App\Googl;
+use App\User;
+use App\Calendar;
+use App\Event;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Redirect;
+
+class AdminController extends Controller
+{
+
+   private $client;
+
+   //constructor
+   public function __construct(Googl $googl)
+   {
+        $this->client = $googl->client();
+   }
+
+   //return dashboard with our name
+   public function index(Request $request)
+   {    
+        //setting access token for our client
+        $this->client->setAccessToken(session('user.token'));
+        return view('admin.dashboard')->with(["first" => session('user.first_name'), "last" => session('user.last_name')]);
+   }
+
+   //create calendar view
+   public function createCalendar(Request $request)
+   {
+        $this->client->setAccessToken(session('user.token'));
+        return view('admin.create_calendar');
+   }
+
+   //creating calendar
+   public function doCreateCalendar(Request $request, Calendar $calendar)
+   {
+        //setting access token
+        $token = $this->client->setAccessToken(session('user.token'));
+        //validating request
+        $this->validate($request, [
+            'title' => 'required|min:4'
+        ]);
+
+        //getting few variables for our function
+        $title = $request->input('title');
+        $timezone = env('APP_TIMEZONE');
+
+        //creating new google service calendar object
+        $cal = new \Google_Service_Calendar($this->client);
+
+        //creating new google service calendar object
+        $google_calendar = new \Google_Service_Calendar_Calendar($this->client);
+        $google_calendar->setSummary($title);
+        $google_calendar->setTimeZone($timezone);
+
+        $created_calendar = $cal->calendars->insert($google_calendar);
+
+        $calendar_id = $created_calendar->getId();
+
+        //saving the calendar to our database
+        $calendar->user_id = session('user.id');
+        $calendar->title = $title;
+        $calendar->calendar_id = $calendar_id;
+        $calendar->save();
+
+        return redirect('/calendar/create')
+            ->with('message', [
+                'type' => 'success', 'text' => 'Calendar was created!'
+            ]);
+   }
+
+   //TO DO!!! 
+   public function createEvent(Calendar $calendar, Request $request)
+   {
+        $this->client->setAccessToken(session('user.token'));
+        $user_id = session('user.id');
+        $calendars = $calendar
+            ->where('user_id', '=', $user_id)->get();
+        $page_data = [
+            'calendars' => $calendars
+        ];
+        return view('admin.create_event', $page_data);
+   }
+
+   //TO DO!!!
+   public function doCreateEvent(Event $evt, Request $request)
+   {
+        $this->client->setAccessToken(session('user.token'));
+        $this->validate($request, [
+            'title' => 'required',
+            'calendar_id' => 'required',
+            'datetime_start' => 'required|date',
+            'datetime_end' => 'required|date'
+        ]);
+
+        $title = $request->input('title');
+        $calendar_id = $request->input('calendar_id');
+        $start = $request->input('datetime_start');
+        $end = $request->input('datetime_end');
+
+        $start_datetime = Carbon::createFromFormat('Y/m/d H:i', $start);
+        $end_datetime = Carbon::createFromFormat('Y/m/d H:i', $end);
+
+        $cal = new \Google_Service_Calendar($this->client);
+        $event = new \Google_Service_Calendar_Event();
+        $event->setSummary($title);
+
+        $start = new \Google_Service_Calendar_EventDateTime();
+        $start->setDateTime($start_datetime->toAtomString());
+        $event->setStart($start);
+        $end = new \Google_Service_Calendar_EventDateTime();
+        $end->setDateTime($end_datetime->toAtomString());
+        $event->setEnd($end);
+
+        //attendee
+        if ($request->has('attendee_name')) {
+            $attendees = [];
+            $attendee_names = $request->input('attendee_name');
+            $attendee_emails = $request->input('attendee_email');
+
+            foreach ($attendee_names as $index => $attendee_name) {
+                $attendee_email = $attendee_emails[$index];
+                if (!empty($attendee_name) && !empty($attendee_email)) {
+                    $attendee = new \Google_Service_Calendar_EventAttendee();
+                    $attendee->setEmail($attendee_email);
+                    $attendee->setDisplayName($attendee_name);
+                    $attendees[] = $attendee;
+                }
+            }
+
+            $event->attendees = $attendees;
+        }
+
+        $created_event = $cal->events->insert($calendar_id, $event);
+
+        $evt->title = $title;
+        $evt->calendar_id = $calendar_id;
+        $evt->event_id = $created_event->id;
+        $evt->datetime_start = $start_datetime->toDateTimeString();
+        $evt->datetime_end = $end_datetime->toDateTimeString();
+        $evt->save();
+
+        return redirect('/event/create')
+                    ->with('message', [
+                        'type' => 'success',
+                        'text' => 'Event was created!'
+                    ]);
+   }
+
+   //Sync all of our calendars and events
+
+   //TO DO: checking if event on our calendar exist and act apropriatelly
+   public function syncCalendar(Calendar $calendar)
+   {
+        //First we truncate events table so we can get fresh data everytime
+        Event::truncate();
+
+        //Set access token for client verification
+        $this->client->setAccessToken(session('user.token'));
+        $service = new \Google_Service_Calendar($this->client);
+        $user_id = session('user.id');
+        $calendars = $service->calendarList->listCalendarList();
+
+        //Populate array with our google calendars
+        $page_data = [
+            'calendars' => $calendars
+        ];
+        //Iterate through array of our calendars
+        foreach ($calendars as $calendar) {
+            //setting our access token
+            $this->client->setAccessToken(session('user.token'));
+            //set few of our variables
+            $user_id = session('user.id');
+            $calendar_id = $calendar->id;
+            $base_timezone = env('APP_TIMEZONE');
+            $sync_token = $calendar->nextSyncToken;
+            $g_calendar = $service->calendars->get($calendar_id);
+            $calendar_timezone = $g_calendar->getTimeZone();
+
+            //check if synced calendar already exists...
+            if (Event::where('calendar_id', '=', $calendar_id)->exists()) {
+                //if it does, we do nothing...
+                echo "obstaja <br>";
+            } else {
+                //if it does not, we create it                 
+                $c = new Calendar;
+                $c->user_id = session('user.id');
+                $c->title = $calendar->summary;
+                $c->calendar_id = $calendar->id;
+                $c->sync_token = $calendar->nextSyncToken;
+                $c->save();
+
+            }
+
+            //gather our events which match in field calendar_id
+            $events = Event::where('calendar_id', '=', $calendar_id)
+                ->pluck('event_id')
+                ->toArray();
+
+            //parameters for I do not know what
+            $params = [
+                'showDeleted' => true,
+                'timeMin' => Carbon::now()
+                    ->setTimezone($calendar_timezone)
+                    ->toAtomString()
+            ];
+
+            if (!empty($sync_token)) {
+                $params = [
+                    'syncToken' => $sync_token
+                ];
+            }
+            //list our events in var below
+            $googlecalendar_events = $service->events->listEvents($calendar_id);
+                //iterate through events
+                foreach ($googlecalendar_events as $event) {
+                    //parsing the start
+                    $g_datetime_start = Carbon::parse($event->getStart()->getDateTime())
+                            ->tz($calendar_timezone)
+                            ->setTimezone($base_timezone)
+                            ->format('Y-m-d H:i:s');
+                    //parsing the end       
+                    $g_datetime_end = Carbon::parse($event->getEnd()->getDateTime())
+                            ->tz($calendar_timezone)
+                            ->setTimezone($base_timezone)
+                            ->format('Y-m-d H:i:s');
+                    //check if synced event already exists...
+                    if (Event::where('event_id', '=', $event->id)->exists()) {
+                        //if it does we do nothing
+                        echo "obstaja <br>";
+                    } else {
+                        //else we create the event and save it to our base
+                        $e = new Event;
+                        $e->title = $event->summary;
+                        $e->calendar_id = $calendar->id;
+                        $e->event_id = $event->id;
+                        $e->datetime_start = $g_datetime_start;
+                        $e->datetime_end = $g_datetime_end;
+                        $e->save();
+
+                    }
+                }
+    }
+    //returning dashboard with our coresponding calendars
+    return view('admin.dashboard')->with(["first" => session('user.first_name'), "last" => session('user.last_name'), "calendars" => $page_data]);    
+}
+    //DECIDING WHAT TO DO WITH IT
+   public function listEvents()
+   {
+        $user_id = session('user.id');
+        $calendar_ids = Calendar::where('user_id', '=', $user_id)
+            ->pluck('calendar_id')
+            ->toArray();
+
+        $events = Event::whereIn('calendar_id', $calendar_ids)->get();
+
+        $page_data = [
+            'events' => $events
+        ];
+
+        return view('admin.events', $page_data);
+   }
+
+   //logout
+   public function logout(Request $request)
+   {
+        $this->client->setAccessToken(session('user.token'));
+        $request->session()->flush();
+        return redirect('/')
+            ->with('message', ['type' => 'success', 'text' => 'You are now logged out']);
+   }
+
+}
