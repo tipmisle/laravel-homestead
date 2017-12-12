@@ -19,16 +19,5 @@
   crossorigin="anonymous"></script>        
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.7.0/fullcalendar.min.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.19.3/locale/en-gb.js"></script>
-    <script type="text/javascript">
-    $(document).ready(function() {
-
-    // page is now ready, initialize the calendar...
-
-    $('#calendar').fullCalendar({
-        // put your options and callbacks here
-    })
-
-});
-</script>
 </body>
 </html>
