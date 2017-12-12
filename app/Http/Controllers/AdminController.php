@@ -14,33 +14,35 @@ class AdminController extends Controller
 {
 
    private $client;
+   private $token;
 
    //constructor
    public function __construct(Googl $googl)
    {
         $this->client = $googl->client();
+        //closure based middleware
+        $this->middleware(function ($request, $next) {
+            //set our access token
+            $this->client->setAccessToken(Auth::user()->token);
+            return $next($request);
+        });
    }
 
    //return dashboard with our name
    public function index(Request $request)
-   {    
-        //setting access token for our client
-        $this->client->setAccessToken(session('user.token'));
+   {
         return view('admin.dashboard')->with(["first" => session('user.first_name'), "last" => session('user.last_name')]);
    }
 
    //create calendar view
    public function createCalendar(Request $request)
    {
-        $this->client->setAccessToken(session('user.token'));
         return view('admin.create_calendar');
    }
 
    //creating calendar
    public function doCreateCalendar(Request $request, Calendar $calendar)
    {
-        //setting access token
-        $token = $this->client->setAccessToken(session('user.token'));
         //validating request
         $this->validate($request, [
             'title' => 'required|min:4'
@@ -77,7 +79,6 @@ class AdminController extends Controller
    //TO DO!!! 
    public function createEvent(Calendar $calendar, Request $request)
    {
-        $this->client->setAccessToken(session('user.token'));
         $user_id = session('user.id');
         $calendars = $calendar
             ->where('user_id', '=', $user_id)->get();
@@ -90,7 +91,6 @@ class AdminController extends Controller
    //TO DO!!!
    public function doCreateEvent(Event $evt, Request $request)
    {
-        $this->client->setAccessToken(session('user.token'));
         $this->validate($request, [
             'title' => 'required',
             'calendar_id' => 'required',
@@ -160,8 +160,6 @@ class AdminController extends Controller
         //First we truncate events table so we can get fresh data everytime
         Event::truncate();
 
-        //Set access token for client verification
-        $this->client->setAccessToken(session('user.token'));
         $service = new \Google_Service_Calendar($this->client);
         //return user id with Auth object
         $user_id = Auth::id();
@@ -172,8 +170,6 @@ class AdminController extends Controller
         ];
         //Iterate through array of our calendars
         foreach ($calendars as $calendar) {
-            //setting our access token
-            $this->client->setAccessToken(session('user.token'));
             //set few of our variables
             $user_id = Auth::id();
             $calendar_id = $calendar->id;
@@ -269,7 +265,6 @@ class AdminController extends Controller
    //logout
    public function logout(Request $request)
    {
-        $this->client->setAccessToken(session('user.token'));
         $request->session()->flush();
         return redirect('/')
             ->with('message', ['type' => 'success', 'text' => 'You are now logged out']);
