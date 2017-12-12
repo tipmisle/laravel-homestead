@@ -8,6 +8,7 @@ use App\Event;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Redirect;
+use Auth;
 
 class AdminController extends Controller
 {
@@ -162,9 +163,9 @@ class AdminController extends Controller
         //Set access token for client verification
         $this->client->setAccessToken(session('user.token'));
         $service = new \Google_Service_Calendar($this->client);
-        $user_id = session('user.id');
+        //return user id with Auth object
+        $user_id = Auth::id();
         $calendars = $service->calendarList->listCalendarList();
-
         //Populate array with our google calendars
         $page_data = [
             'calendars' => $calendars
@@ -174,7 +175,7 @@ class AdminController extends Controller
             //setting our access token
             $this->client->setAccessToken(session('user.token'));
             //set few of our variables
-            $user_id = session('user.id');
+            $user_id = Auth::id();
             $calendar_id = $calendar->id;
             $base_timezone = env('APP_TIMEZONE');
             $sync_token = $calendar->nextSyncToken;
