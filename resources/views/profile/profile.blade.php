@@ -18,7 +18,7 @@
     // page is now ready, initialize the calendar...
 
     $('#calendar').fullCalendar({
-        googleCalendarApiKey: 'AIzaSyDHq7R6I33swEFtfZq8pz71jhydrj8iGBo',
+        googleCalendarApiKey: '{{ env('GOOGLE_API_KEY') }}',
         eventSources: [
         	@if(!$calendars->isEmpty())
         	@foreach ($calendars as $cal)
