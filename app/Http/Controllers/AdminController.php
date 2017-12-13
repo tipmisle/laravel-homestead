@@ -179,9 +179,8 @@ class AdminController extends Controller
             $calendar_timezone = $g_calendar->getTimeZone();
 
             //check if synced calendar already exists...
-            if (Event::where('calendar_id', '=', $calendar_id)->exists()) {
+            if (Calendar::where('calendar_id', '=', $calendar_id)->exists()) {
                 //if it does, we do nothing...
-                echo "obstaja <br>";
             } else {
                 //if it does not, we create it                 
                 $c = new Calendar;
