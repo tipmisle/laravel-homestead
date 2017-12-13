@@ -6,7 +6,6 @@
     <title>{{ env('APP_TITLE') }}</title>
 
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.7.0/fullcalendar.min.css">
-    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.7.0/fullcalendar.print.css">
     @yield('jquery_datetimepicker_style')
 </head>
 <body>
@@ -17,6 +16,7 @@
         @yield('content')
     </div>
     <script type="text/javascript" src="/js/app.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.19.4/moment.js"></script>    
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.7.0/gcal.js"></script>
     @yield('gcalscript')
     
