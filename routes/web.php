@@ -28,13 +28,16 @@ Route::group(
         Route::get('/event/create', 'AdminController@createEvent');
         Route::post('/event/create', 'AdminController@doCreateEvent');
 
+        Route::post('/event/create/profile/{id}', 'AdminController@profileCreateEvent');
+
         Route::get('/calendar/sync', 'AdminController@syncCalendar');
         Route::post('/calendar/sync', 'AdminController@doSyncCalendar');
 
         Route::get('/events', 'AdminController@listEvents');
 
         Route::get('/logout', 'AdminController@logout');
+
+        //profile route
+        Route::get('/profile/{id}', 'UserController@profile');
 });
 
-//profile route
-Route::get('/profile/{id}', 'UserController@profile');
