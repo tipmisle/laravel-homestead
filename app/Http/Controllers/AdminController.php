@@ -98,23 +98,71 @@ class AdminController extends Controller
         $event->setEnd($end);
 
         //attendee
-        if ($request->has('attendee_name')) {
+        /*if (Auth::check()) {
             $attendees = [];
-            $attendee_names = $request->input('attendee_name');
-            $attendee_emails = $request->input('attendee_email');
+            $attendee_name = Auth::user()->first_name.' '.Auth::user()->last_name;
+            $attendee_email = Auth::user()->email;
 
-            foreach ($attendee_names as $index => $attendee_name) {
-                $attendee_email = $attendee_emails[$index];
-                if (!empty($attendee_name) && !empty($attendee_email)) {
-                    $attendee = new \Google_Service_Calendar_EventAttendee();
-                    $attendee->setEmail($attendee_email);
-                    $attendee->setDisplayName($attendee_name);
-                    $attendees[] = $attendee;
-                }
-            }
+            $attendee = new \Google_Service_Calendar_EventAttendee();
+            $attendee->setEmail($attendee_email);
+            $attendee->setDisplayName($attendee_name);
+            $attendees[] = $attendee;
 
             $event->attendees = $attendees;
-        }
+        }*/
+
+        $created_event = $cal->events->insert($calendar_id, $event);
+
+        /*$evt->title = $title;
+        $evt->calendar_id = $calendar_id;
+        $evt->event_id = $created_event->id;
+        $evt->datetime_start = $start_datetime->toDateTimeString();
+        $evt->datetime_end = $end_datetime->toDateTimeString();
+        $evt->save();*/
+
+        return redirect('/dashboard');
+   }
+
+   //function for user to create event on other users calendar
+   public function profileCreateEvent(Event $evt, Request $request)
+   {
+        $this->validate($request, [
+            'summary' => 'required'
+        ]);
+
+        $date = $request->date;
+        $title = $request->summary;
+        $calendar_id = $request->calendarid;
+        $start = $request->time_s;
+        $end = $request->time_e;
+        $user_id = $request->userid;
+
+        $start_datetime = Carbon::createFromFormat('d.m.Y H:i', $date.$start);
+        $end_datetime = Carbon::createFromFormat('d.m.Y H:i', $date.$end);
+
+        $cal = new \Google_Service_Calendar($this->client);
+        $event = new \Google_Service_Calendar_Event();
+        $event->setSummary($title);
+
+        $start = new \Google_Service_Calendar_EventDateTime();
+        $start->setDateTime($start_datetime->toAtomString());
+        $event->setStart($start);
+        $end = new \Google_Service_Calendar_EventDateTime();
+        $end->setDateTime($end_datetime->toAtomString());
+        $event->setEnd($end);
+
+        $user = User::where('id', '=', $user_id)->first();
+        //attendee
+        $attendees = [];
+        $attendee_name = $user->first_name.' '.$user->last_name;
+        $attendee_email = $user->email;
+
+        $attendee = new \Google_Service_Calendar_EventAttendee();
+        $attendee->setEmail($attendee_email);
+        $attendee->setDisplayName($attendee_name);
+        $attendees[] = $attendee;
+
+        $event->attendees = $attendees;
 
         $created_event = $cal->events->insert($calendar_id, $event);
 
