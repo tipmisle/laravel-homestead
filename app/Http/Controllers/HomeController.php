@@ -59,8 +59,7 @@ class HomeController extends Controller
                 ]
             ]);
 
-            return redirect('/dashboard')
-                ->with('message', ['type' => 'success', 'text' => 'You are now logged in.']);
+            return redirect()->intended();
 
         } else {
             $auth_url = $client->createAuthUrl();
