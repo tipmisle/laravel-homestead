@@ -31,17 +31,11 @@ class AdminController extends Controller
    //return dashboard with our name
    public function index(Request $request)
    {
-        return view('admin.dashboard')->with(["first" => session('user.first_name'), "last" => session('user.last_name')]);
-   }
-
-   //create calendar view
-   public function createCalendar(Request $request)
-   {
-        return view('admin.create_calendar');
+        return view('dashboard')->with(["first" => session('user.first_name'), "last" => session('user.last_name')]);
    }
 
    //creating calendar
-   public function doCreateCalendar(Request $request, Calendar $calendar)
+   /*public function doCreateCalendar(Request $request, Calendar $calendar)
    {
         //validating request
         $this->validate($request, [
@@ -74,37 +68,23 @@ class AdminController extends Controller
             ->with('message', [
                 'type' => 'success', 'text' => 'Calendar was created!'
             ]);
-   }
+   }*/
 
-   //TO DO!!! 
-   public function createEvent(Calendar $calendar, Request $request)
-   {
-        $user_id = session('user.id');
-        $calendars = $calendar
-            ->where('user_id', '=', $user_id)->get();
-        $page_data = [
-            'calendars' => $calendars
-        ];
-        return view('admin.create_event', $page_data);
-   }
-
-   //TO DO!!!
+   //function to create event on our calendar
    public function doCreateEvent(Event $evt, Request $request)
    {
         $this->validate($request, [
-            'title' => 'required',
-            'calendar_id' => 'required',
-            'datetime_start' => 'required|date',
-            'datetime_end' => 'required|date'
+            'summary' => 'required'
         ]);
 
-        $title = $request->input('title');
-        $calendar_id = $request->input('calendar_id');
-        $start = $request->input('datetime_start');
-        $end = $request->input('datetime_end');
+        $date = $request->date;
+        $title = $request->summary;
+        $calendar_id = $request->calendarid;
+        $start = $request->time_s;
+        $end = $request->time_e;
 
-        $start_datetime = Carbon::createFromFormat('Y/m/d H:i', $start);
-        $end_datetime = Carbon::createFromFormat('Y/m/d H:i', $end);
+        $start_datetime = Carbon::createFromFormat('d.m.Y H:i', $date.$start);
+        $end_datetime = Carbon::createFromFormat('d.m.Y H:i', $date.$end);
 
         $cal = new \Google_Service_Calendar($this->client);
         $event = new \Google_Service_Calendar_Event();
