@@ -173,24 +173,20 @@ class AdminController extends Controller
         $evt->datetime_end = $end_datetime->toDateTimeString();
         $evt->save();
 
-        return redirect('/event/create')
-                    ->with('message', [
-                        'type' => 'success',
-                        'text' => 'Event was created!'
-                    ]);
    }
 
    //Sync all of our calendars and events
 
    //TO DO: checking if event on our calendar exist and act apropriatelly
    public function syncCalendar(Calendar $calendar)
-   {
-        //First we truncate events table so we can get fresh data everytime
-        Event::truncate();
+   {    
+        $user_id = Auth::id();
+        //First we clear events so we can get fresh data everytime
+        Event::where('user_id', '=', Auth::id())->delete();
 
         $service = new \Google_Service_Calendar($this->client);
         //return user id with Auth object
-        $user_id = Auth::id();
+        
         $calendars = $service->calendarList->listCalendarList();
         //Populate array with our google calendars
         $page_data = [
@@ -251,16 +247,16 @@ class AdminController extends Controller
                     $g_datetime_end = Carbon::parse($event->getEnd()->getDateTime())
                             ->tz($calendar_timezone)
                             ->setTimezone($base_timezone)
-                            ->format('Y-m-d H:i:s');
+                            ->format('Y-m-d H:i:s');                    
                     //check if synced event already exists...
                     if (Event::where('event_id', '=', $event->id)->exists()) {
                         //if it does we do nothing
-                        echo "obstaja <br>";
                     } else {
                         //else we create the event and save it to our base
                         $e = new Event;
                         $e->title = $event->summary;
                         $e->calendar_id = $calendar->id;
+                        $e->user_id = $user_id;
                         $e->event_id = $event->id;
                         $e->datetime_start = $g_datetime_start;
                         $e->datetime_end = $g_datetime_end;
@@ -270,25 +266,8 @@ class AdminController extends Controller
                 }
     }
     //returning dashboard with our coresponding calendars
-    return view('admin.dashboard')->with(["first" => session('user.first_name'), "last" => session('user.last_name'), "calendars" => $page_data]);    
+    return view('dashboard')->with(["first" => session('user.first_name'), "last" => session('user.last_name'), "calendars" => $page_data]);    
 }
-    //DECIDING WHAT TO DO WITH IT
-   public function listEvents()
-   {
-        $user_id = session('user.id');
-        $calendar_ids = Calendar::where('user_id', '=', $user_id)
-            ->pluck('calendar_id')
-            ->toArray();
-
-        $events = Event::whereIn('calendar_id', $calendar_ids)->get();
-
-        $page_data = [
-            'events' => $events
-        ];
-
-        return view('admin.events', $page_data);
-   }
-
    //logout
    public function logout(Request $request)
    {
