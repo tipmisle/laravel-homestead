@@ -12,5 +12,5 @@ Intended functions:
 3. Possibility to share link to your calendars with your friends, so they can add the events for you to catch up
 
 TO DO: 
--No. 3
+-Fix intended routes
 
