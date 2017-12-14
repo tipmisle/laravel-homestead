@@ -8,6 +8,7 @@ use App\Event;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Redirect;
+use Auth;
 
 class UserController extends Controller
 {
@@ -25,7 +26,7 @@ class UserController extends Controller
    		$user = User::where('id', '=', $id)->first();
    		//array calendars
    		$calendars = Calendar::where('user_id', '=', $id)->get();
-   		
-   		return view('profile.profile')->with(['user' => $user, 'calendars' => $calendars]);
+      $mycalendars = Calendar::where('user_id', '=', Auth::user()->id)->get();
+   		return view('profile.profile')->with(['user' => $user, 'calendars' => $calendars, 'mycalendars' => $mycalendars]);
    }
 }
