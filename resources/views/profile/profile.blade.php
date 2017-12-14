@@ -61,16 +61,40 @@
     $('#calendar').fullCalendar({
         googleCalendarApiKey: '{{ env('GOOGLE_API_KEY') }}',
         eventSources: [
-        	@if(!$calendars->isEmpty())
-        	@foreach ($calendars as $cal)
-					{
-                		googleCalendarId: '{{ $cal->calendar_id }}'
-            		},
-			@endforeach
-			@endif
-        ]
-    })
-
+            @if(!empty($calendars))
+                @foreach ($calendars as $cal)
+                        {
+                            googleCalendarId: '{{ $cal->calendar_id }}'
+                        },
+                @endforeach
+            @endif
+        ],
+        
+        eventRender: function (event, element) {
+            @if($user->id != Auth::user()->id)
+                element.html('<p><b>Occupied!</b></p>');
+            @endif
+        },
+        eventClick: function(event) {
+            if (event.url) {
+                return false;
+            }
+        },
+        defaultView: 'month',
+        dayRender: function(date, cell) {
+            var today = moment();      
+        },
+        dayClick: function(date, allDay, jsEvent, view) {
+            var today = moment();
+            if (date >= today) {
+                $('#exampleModal').modal('show');
+                var selectedDate = date.format('DD.MM.YYYY');
+                $('#a #date').text(selectedDate);
+            } else {
+                alert("Can't select date in the past!")
+            }
+        }
+    });
 });
 </script>
 @stop
