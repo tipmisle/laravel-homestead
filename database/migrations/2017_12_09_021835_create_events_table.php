@@ -17,6 +17,7 @@ class CreateEventsTable extends Migration
             $table->increments('id');
             $table->string('title');
             $table->string('calendar_id');
+            $table->string('user_id');
             $table->datetime('datetime_start');
             $table->datetime('datetime_end');
         });
