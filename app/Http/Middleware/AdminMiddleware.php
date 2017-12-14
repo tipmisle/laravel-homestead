@@ -16,7 +16,7 @@ class AdminMiddleware
             return $next($request);
         }
 
-        return redirect('/')
+        return redirect('/login')
             ->with(
                 'message',
                 ['type' => 'danger', 'text' => 'You need to login']
