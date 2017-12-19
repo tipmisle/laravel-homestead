@@ -130,6 +130,7 @@ class AdminController extends Controller
             'summary' => 'required'
         ]);
 
+        //set our variables from our create event form
         $date = $request->date;
         $title = $request->summary;
         $calendar_id = $request->calendarid;
@@ -137,6 +138,7 @@ class AdminController extends Controller
         $end = $request->time_e;
         $user_id = $request->userid;
 
+        //create carbon datetimes
         $start_datetime = Carbon::createFromFormat('d.m.Y H:i', $date.$start);
         $end_datetime = Carbon::createFromFormat('d.m.Y H:i', $date.$end);
 
@@ -152,6 +154,7 @@ class AdminController extends Controller
         $event->setEnd($end);
 
         $user = User::where('id', '=', $user_id)->first();
+
         //attendee
         $attendees = [];
         $attendee_name = $user->first_name.' '.$user->last_name;
@@ -166,6 +169,7 @@ class AdminController extends Controller
 
         $created_event = $cal->events->insert($calendar_id, $event);
 
+        //insert our event in database
         $evt->title = $title;
         $evt->calendar_id = $calendar_id;
         $evt->event_id = $created_event->id;
@@ -234,7 +238,7 @@ class AdminController extends Controller
                     'syncToken' => $sync_token
                 ];
             }
-            //list our events in var below
+            //list our events in array below
             $googlecalendar_events = $service->events->listEvents($calendar_id);
                 //iterate through events
                 foreach ($googlecalendar_events as $event) {
