@@ -59,7 +59,7 @@ class HomeController extends Controller
                 ]
             ]);
 
-            return redirect()->intended();
+            return redirect('/calendar/sync');
 
         } else {
             $auth_url = $client->createAuthUrl();
