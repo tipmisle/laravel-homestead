@@ -35,7 +35,7 @@ class AdminController extends Controller
    }
 
    //creating calendar
-   /*public function doCreateCalendar(Request $request, Calendar $calendar)
+   public function createCalendar(Request $request, Calendar $calendar)
    {
         //validating request
         $this->validate($request, [
@@ -64,11 +64,8 @@ class AdminController extends Controller
         $calendar->calendar_id = $calendar_id;
         $calendar->save();
 
-        return redirect('/calendar/create')
-            ->with('message', [
-                'type' => 'success', 'text' => 'Calendar was created!'
-            ]);
-   }*/
+        return redirect('/dashboard');
+   }
 
    //function to create event on our calendar
    public function doCreateEvent(Event $evt, Request $request)
@@ -120,7 +117,7 @@ class AdminController extends Controller
         $evt->datetime_end = $end_datetime->toDateTimeString();
         $evt->save();*/
 
-        return redirect('/dashboard');
+        return redirect('/calendar/sync');
    }
 
    //function for user to create event on other users calendar
@@ -176,6 +173,8 @@ class AdminController extends Controller
         $evt->datetime_start = $start_datetime->toDateTimeString();
         $evt->datetime_end = $end_datetime->toDateTimeString();
         $evt->save();
+
+        return redirect('/calendar/sync');
 
    }
 

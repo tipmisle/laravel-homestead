@@ -59,6 +59,31 @@
     </div>
   </div>
 </div>
+<div class="modal fade" id="createCalendarModal" tabindex="-1" role="dialog" aria-labelledby="createCalendarModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Create new calendar</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form id="c">
+          <div class="modal-body">
+              <div class="form-group">
+                <label for="date">Calendar title</label>
+                <input type="text" class="form-control" name="title" id="title" required>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Save changes</button>
+          </div>
+        </form>
+    </div>
+  </div>
+</div>
 
 
 
@@ -69,6 +94,10 @@
 @section('gcalscript')
 <script type="text/javascript">
     $(document).ready(function() {
+
+    $('#createCalendar').on('click', function() {
+        $('#createCalendarModal').modal('show');
+    });
 
     // page is now ready, initialize the calendar...
 

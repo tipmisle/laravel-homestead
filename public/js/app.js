@@ -27024,7 +27024,6 @@ $("#a").on('submit', function (e) {
 	var calendar_id = $("#calendar_id").val();
 	var user_id = $("#user_id").text();
 	var url = '/event/create/profile/' + user_id;
-	console.log(calendar_id);
 	axios.post(url, {
 		date: date,
 		summary: summary,
@@ -27034,6 +27033,19 @@ $("#a").on('submit', function (e) {
 		userid: user_id
 	}).then(function (response) {
 		$('#exampleModal').modal('hide');
+	}).catch(function (error) {
+		console.log(error);
+	});
+});
+
+$("#c").on('submit', function (e) {
+	e.preventDefault();
+	var title = $("#title").val();
+	console.log(calendar_id);
+	axios.post('/calendar/create', {
+		title: title
+	}).then(function (response) {
+		$('#createCalendarModal').modal('hide');
 	}).catch(function (error) {
 		console.log(error);
 	});

@@ -27,7 +27,7 @@
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav">
                 @if(Auth::check())
-                <li class="active"><a href="/calendar/create">Create calendar <span class="sr-only">(current)</span></a></li>
+                <li class="active"><a id="createCalendar" href="#">Create calendar <span class="sr-only">(current)</span></a></li>
                 <li><a href="/calendar/sync">Sync calendar</a></li>
                 @endif
             </ul>

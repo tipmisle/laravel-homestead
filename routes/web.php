@@ -22,8 +22,7 @@ Route::group(
 
         Route::get('/dashboard', 'AdminController@index');
 
-        Route::get('/calendar/create', 'AdminController@createCalendar');
-        Route::post('/calendar/create', 'AdminController@doCreateCalendar');
+        Route::post('/calendar/create', 'AdminController@createCalendar');
 
         Route::get('/event/create', 'AdminController@createEvent');
         Route::post('/event/create', 'AdminController@doCreateEvent');
