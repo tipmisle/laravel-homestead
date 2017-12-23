@@ -27001,7 +27001,7 @@ $("#f").on('submit', function (e) {
 	var time_s = $("#time_s").val();
 	var time_e = $("#time_e").val();
 	var calendar_id = $("#calendar_id").val();
-	console.log(calendar_id);
+	$('.alert-success').show();
 	axios.post('/event/create', {
 		date: date,
 		summary: summary,
