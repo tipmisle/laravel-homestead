@@ -18,7 +18,7 @@ $("#f").on('submit', function(e) {
 	var time_s = $("#time_s").val();
 	var time_e = $("#time_e").val();
 	var calendar_id = $("#calendar_id").val();
-	console.log(calendar_id);
+	$('.alert-success').show();
 	axios.post('/event/create', {
 		date: date,
 		summary: summary,
@@ -28,6 +28,7 @@ $("#f").on('submit', function(e) {
 	})
 		.then(function (response) {
 		$('#exampleModal').modal('hide');
+		window.location.replace("http://simplecalendarlogin.com/calendar/sync");
 	})
 		.catch(function (error) {
 		console.log(error);
@@ -43,6 +44,7 @@ $("#a").on('submit', function(e) {
 	var calendar_id = $("#calendar_id").val();
 	var user_id = $("#user_id").text();
 	var url = '/event/create/profile/' + user_id;
+	console.log(calendar_id);
 	axios.post(url, {
 		date: date,
 		summary: summary,
@@ -62,12 +64,13 @@ $("#a").on('submit', function(e) {
 $("#c").on('submit', function(e) {
 	e.preventDefault();
 	var title = $("#title").val();
-	console.log(calendar_id);
+	$('.alert-success').show();
 	axios.post('/calendar/create', {
 		title: title
 	})
 		.then(function (response) {
 		$('#createCalendarModal').modal('hide');
+		window.location.replace("http://simplecalendarlogin.com/calendar/sync");
 	})
 		.catch(function (error) {
 		console.log(error);

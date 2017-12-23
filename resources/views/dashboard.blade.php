@@ -22,6 +22,9 @@
       </div>
       <form id="f">
           <div class="modal-body">
+              <div class="alert alert-success" style="display: none;">
+                <span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>Event is being created. Wait a moment!
+              </div>
               <div class="form-group">
                 <label for="date">Date</label>
                 <p name="date" id="date"></p>
@@ -70,6 +73,9 @@
       </div>
       <form id="c">
           <div class="modal-body">
+            <div class="alert alert-success" style="display: none;">
+              <span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>Calendar is being created. Wait a moment!
+            </div>
               <div class="form-group">
                 <label for="date">Calendar title</label>
                 <input type="text" class="form-control" name="title" id="title" required>

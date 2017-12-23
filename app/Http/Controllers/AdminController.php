@@ -64,7 +64,7 @@ class AdminController extends Controller
         $calendar->calendar_id = $calendar_id;
         $calendar->save();
 
-        return redirect('/dashboard');
+        return redirect('/calendar/sync');
    }
 
    //function to create event on our calendar
