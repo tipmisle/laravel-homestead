@@ -20,21 +20,19 @@ Route::group(
     ['middleware' => ['admin']],
     function(){
 
-        Route::get('/dashboard', 'AdminController@index');
+        Route::get('/dashboard', 'CalendarController@index');
 
-        Route::post('/calendar/create', 'AdminController@createCalendar');
+        Route::post('/calendar/create', 'CalendarController@createCalendar');
 
-        Route::get('/event/create', 'AdminController@createEvent');
-        Route::post('/event/create', 'AdminController@doCreateEvent');
+        Route::get('/event/create', 'EventController@createEvent');
+        Route::post('/event/create', 'EventController@doCreateEvent');
 
-        Route::post('/event/create/profile/{id}', 'AdminController@profileCreateEvent');
+        Route::post('/event/create/profile/{id}', 'EventController@profileCreateEvent');
 
-        Route::get('/calendar/sync', 'AdminController@syncCalendar');
+        Route::get('/calendar/sync', 'CalendarController@syncCalendar');
         Route::post('/calendar/sync', 'AdminController@doSyncCalendar');
 
-        Route::get('/events', 'AdminController@listEvents');
-
-        Route::get('/logout', 'AdminController@logout');
+        Route::get('/logout', 'HomeController@logout');
 
         //profile route
         Route::get('/profile/{id}', 'UserController@profile');

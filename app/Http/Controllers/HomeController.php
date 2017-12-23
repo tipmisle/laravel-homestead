@@ -66,4 +66,12 @@ class HomeController extends Controller
             return redirect($auth_url);
         }
    }
+
+    //logout
+   public function logout(Request $request)
+   {
+        $request->session()->flush();
+        return redirect('/')
+            ->with('message', ['type' => 'success', 'text' => 'You are now logged out']);
+   }
 }
