@@ -187,14 +187,20 @@ class AdminController extends Controller
         //First we clear events so we can get fresh data everytime
         Event::where('user_id', '=', Auth::id())->delete();
 
+
+
         $service = new \Google_Service_Calendar($this->client);
         //return user id with Auth object
+
+        $datacalendars = Calendar::all()->toArray();
         
         $calendars = $service->calendarList->listCalendarList();
+
         //Populate array with our google calendars
         $page_data = [
             'calendars' => $calendars
         ];
+        
         //Iterate through array of our calendars
         foreach ($calendars as $calendar) {
             //set few of our variables
