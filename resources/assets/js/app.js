@@ -44,7 +44,6 @@ $("#a").on('submit', function(e) {
 	var calendar_id = $("#calendar_id").val();
 	var user_id = $("#user_id").text();
 	var url = '/event/create/profile/' + user_id;
-	console.log(calendar_id);
 	axios.post(url, {
 		date: date,
 		summary: summary,
@@ -55,6 +54,7 @@ $("#a").on('submit', function(e) {
 	})
 		.then(function (response) {
 		$('#exampleModal').modal('hide');
+		location.reload();
 	})
 		.catch(function (error) {
 		console.log(error);
