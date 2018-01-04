@@ -9,15 +9,21 @@ use Session;
 
 class HomeController extends Controller
 {
+    protected $redirectTo = '/';
     //homepage
    public function index()
    {
+        
         return view('login');
    }
 
    //login function
    public function login(Googl $googl, User $user, Request $request)
    {
+        if(!session()->has('from')){
+            session()->put('from', url()->previous());
+        }
+        
         //setting our client
         $client = $googl->client();
         //authenticating user
@@ -55,11 +61,13 @@ class HomeController extends Controller
                     'email' => $email,
                     'first_name' => $first_name,
                     'last_name' => $last_name,
-                    'token' => $token
+                    'token' => $token,
+                    'from' => url()->previous()
                 ]
             ]);
-
-            return redirect('/calendar/sync');
+            
+            
+           return redirect(session()->pull('from',$this->redirectTo));
 
         } else {
             $auth_url = $client->createAuthUrl();
